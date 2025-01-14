@@ -178,11 +178,20 @@ const scrapeEventDetails = async (context, link) => {
     }
 
     try {
-        image = await eventPage.$eval('.AO0uZW.rB2c3f[data-hook="event-image"] img', el => el.src);
-      } catch (err) {
-        console.error(`Error finding image on ${link}: `, err);
-        image = null;
-      }
+      image = await eventPage.$eval('.AO0uZW.rB2c3f[data-hook="event-image"] img', el => {
+          let imgUrl = el.src;
+          // Transform the URL to get higher quality version
+          if (imgUrl) {
+              imgUrl = imgUrl.replace(/w_\d+,h_\d+/, 'w_980,h_980')  // Update dimensions
+                           .replace(/q_\d+/, 'q_85')                  // Update quality
+                           .replace(/,blur_\d+/, '');                 // Remove blur
+          }
+          return imgUrl;
+      });
+  } catch (err) {
+      console.error(`Error finding image on ${link}: `, err);
+      image = null;
+  }
 
     isFeatured = false
 
@@ -209,3 +218,4 @@ const scrapeEventDetails = async (context, link) => {
     return null
   }
 }
+``
